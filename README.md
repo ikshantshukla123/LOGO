@@ -1,36 +1,320 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+src/
+ ├── app/
+ │    ├── (storefront)/
+ │    │     ├── layout.tsx
+ │    │     ├── page.tsx
+ │    │     ├── products/
+ │    │     │     ├── page.tsx
+ │    │     │     └── [id]/page.tsx
+ │    │     ├── cart/
+ │    │     │     └── page.tsx
+ │    │     ├── custom/
+ │    │     │     └── page.tsx
+ │    │     └── about/
+ │    │           └── page.tsx
+ │    │
+ │    ├── admin/
+ │    │     ├── layout.tsx
+ │    │     ├── page.tsx
+ │    │     ├── products/
+ │    │     │     ├── page.tsx
+ │    │     │     ├── new/page.tsx
+ │    │     │     └── [id]/page.tsx
+ │    │     ├── orders/
+ │    │     └── users/
+ │    │
+ │    ├── api/
+ │    │     ├── auth/
+ │    │     │     └── [...nextauth]/route.ts
+ │    │     ├── products/
+ │    │     │     ├── route.ts
+ │    │     │     └── [id]/route.ts
+ │    │     ├── uploadthing/
+ │    │     │     ├── core.ts
+ │    │     │     └── route.ts
+ │    │     ├── orders/route.ts
+ │    │     └── users/route.ts
+ │    │
+ │    ├── globals.css
+ │    └── layout.tsx
+ │
+ ├── components/
+ │    ├── ui/
+ │    ├── nav/
+ │    ├── products/
+ │    ├── cart/
+ │    ├── layout/
+ │    └── shared/
+ │
+ ├── store/
+ │
+ ├── prisma/NeonDb
+ │
+ ├── lib/
+ │
+ ├── types/
+ │
+ ├── hooks/
+ │
+ ├── public/
+ │
+ ├── middleware.ts
+ ├── tsconfig.json
+ ├── package.json
+ └── .env
 
-## Getting Started
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+________________________________________________________
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+NOW EXPLANATION FOR EACH FOLDER + FILE (line-by-line)
+src/app/
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This is the main Next.js App Router folder.
+Every folder inside becomes a route, and every page.tsx is a page.
 
-## Learn More
+ (storefront) — PUBLIC WEBSITE
 
-To learn more about Next.js, take a look at the following resources:
+This folder contains your customer-facing pages.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+(storefront)/
+  page.tsx      → Home page (hero, grid, etc.)
+  layout.tsx    → Layout for only storefront pages (navbar, footer)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+Why separate?
+✔ To isolate public UI from admin UI
+✔ Cleaner navigation
+✔ Better maintainability
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ products/
+products/
+   page.tsx       → Products listing page
+   [id]/page.tsx  → Product details page (dynamic route)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+Why?
+✔ All product-related pages live together
+✔ Easy to manage filters, categories, etc.
+
+cart/
+cart/
+   page.tsx → Full cart page (view items, checkout button)
+
+
+Why?
+✔ Cart is treated as a separate page
+✔ Works with Zustand client-side
+
+ custom/
+custom/
+   page.tsx → Page where user uploads design to create customized T-shirt
+
+
+Why?
+✔ A dedicated customization page makes architecture clean
+✔ Easy to expand later (colors, text editor, canvas, etc.)
+
+ about/
+about/
+   page.tsx → About page
+
+admin/ — PROTECTED ADMIN PANEL
+
+This is for you (the owner/admin).
+
+admin/
+   layout.tsx → Admin-only layout (sidebar, admin navbar)
+   page.tsx   → Admin Dashboard
+
+
+Why separate from storefront?
+✔ Security
+✔ Keeps admin UI totally isolated
+✔ Forces clean architecture
+
+ admin/products/
+products/
+   page.tsx        → Show all products (table)
+   new/page.tsx    → Add new product
+   [id]/page.tsx   → Edit product
+
+
+Why?
+✔ Matches CRUD logic
+✔ Easy to build product management screens
+
+ admin/orders/
+orders/
+   page.tsx → List all orders
+
+ admin/users/
+users/
+   page.tsx → User management
+
+ api/ — FULL BACKEND INSIDE NEXT.JS
+
+Every file here acts like a backend route (like Express.js).
+
+ api/auth/
+auth/[...nextauth]/route.ts → NextAuth authentication backend
+
+
+Why?
+✔ Handles login/logout
+✔ Admin authentication
+✔ Session tokens
+
+ api/products/
+products/route.ts        → GET all products, POST create product
+products/[id]/route.ts   → PATCH update, DELETE remove product
+
+
+Why?
+✔ CRUD API
+✔ Perfect for admin panel
+✔ Next.js automatically makes this a serverless API
+
+ api/uploadthing/
+core.ts  → UploadThing server config
+route.ts → Upload endpoints for images
+
+
+Why?
+✔ Handles image uploads (product images)
+✔ Browser → cloud upload
+✔ No need for S3 manually
+
+api/orders/
+route.ts → Creating orders, updating payment status
+
+ api/users/
+route.ts → CRUD for users (optional)
+
+ globals.css
+
+Your global CSS (Tailwind imports here).
+
+globals.css → Contains Tailwind base, custom styles
+
+ layout.tsx
+
+This is the true root layout for the entire app.
+
+layout.tsx → Wraps the whole app (theme provider, metadata)
+
+ components/ — All reusable UI parts
+ui/
+
+Small reusable UI components:
+
+ui/Button.tsx
+ui/Input.tsx
+ui/Modal.tsx
+
+
+Why?
+✔ DRY principle
+✔ Reuse everywhere
+
+nav/
+
+Your navbar / CardNav etc.
+
+nav/Navbar.tsx
+nav/CardNav.tsx
+
+products/
+products/ProductCard.tsx
+products/ProductGrid.tsx
+products/ProductForm.tsx (for admin)
+
+cart/
+cart/CartItem.tsx
+cart/CartDrawer.tsx
+
+layout/
+layout/Footer.tsx
+layout/Sidebar.tsx
+
+shared/
+shared/ThemeToggle.tsx
+shared/Logo.tsx
+
+ store/ — Zustand state management
+store/cartStore.ts     → Cart items + quantity + total
+store/themeStore.ts    → Light/dark mode
+store/adminStore.ts    → Admin filters/dashboard state
+
+
+Why?
+✔ All global states in one folder
+✔ Easy to maintain
+✔ Cart logic stays isolated
+
+ prisma/ — Database layer
+schema.prisma → Database tables
+seed.ts       → Seed data for dev
+
+
+Why?
+✔ Clear data model
+✔ Easy migrations
+✔ Works with NeonDB
+
+ lib/ — Backend utilities
+db.ts          → Prisma client
+auth.ts        → NextAuth config
+validators/    → Zod validation schemas
+uploadthing.ts → UploadThing helper functions
+utils.ts       → Common functions
+stripe.ts      → (payment handling)
+
+
+Why?
+✔ Shared backend logic
+✔ Clean separation from UI
+
+ types/ — Pure TypeScript types
+types/product.ts
+types/user.ts
+types/order.ts
+
+
+Why?
+✔ Reuse types across client + server
+✔ Fully type-safe e-commerce
+
+ hooks/ — Custom React hooks
+hooks/useScroll.ts
+hooks/useMediaQuery.ts
+hooks/useMounted.ts
+hooks/useDebounce.ts
+
+
+Why?
+✔ Common logic extracted out
+✔ Keeps components clean
+ public/ — Images and static assets
+public/
+  logo.svg
+  banners/
+  tshirts/
+  models/
+
+
+Why?
+✔ Next.js can serve instantly
+✔ Works with next/image
+✔ Perfect for product images
+
+
+
+ middleware.ts
+middleware.ts → Protect admin routes (role-based)
+
+
+Why?
+✔ Blocks unauthorized users from accessing /admin/**
+✔ Security layer
