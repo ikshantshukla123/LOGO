@@ -2,8 +2,11 @@ import "./globals.css";
 import Navbar from "@/components/nav/Navbar";  
 
 export const metadata = {
-  title: "My App",
-  description: "Professional App",
+  title: {
+    default: "LOGO",
+    template: "%s | LOGO",
+  },
+  description: "T-shirt platform App",
 };
 
 export default function RootLayout({
