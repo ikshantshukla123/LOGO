@@ -12,6 +12,7 @@
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^7.1.0",
     "@prisma/client": "^7.1.0",
+    "@uploadthing/react": "^7.3.3",
     "gsap": "^3.13.0",
     "lucide-react": "^0.556.0",
     "next": "16.0.7",
@@ -19,6 +20,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-icons": "^5.5.0",
+    "uploadthing": "^7.7.4",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
