@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useCartStore } from "@/store/cartStore";
 
 interface NavItem {
   name: string;
@@ -12,13 +13,18 @@ interface NavItem {
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState<boolean>(false);
+const { items } = useCartStore();
 
-  const navItems: NavItem[] = [
+ const cartCount = items.reduce((total, item) => total + item.quantity, 0);
+ const navItems: NavItem[] = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
     { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
-    { name: "Cart", path: "/cart" },
+    { name: "Custom", path: "/custom" },
+    { 
+      name: `Cart ${cartCount > 0 ? `(${cartCount})` : ""}`, 
+      path: "/cart" 
+    },
   ];
 
   return (
