@@ -4,6 +4,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import ProductCard from "@/components/products/ProductCard";
 
+
+export const revalidate = 60;
+
 export default async function Home() {
   // Fetch featured products from database
   const featuredProducts = await prisma.product.findMany({
