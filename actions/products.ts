@@ -2,22 +2,13 @@
 
 import { prisma } from "@/lib/db";
 
-export async function prismaCreateProduct(data: {
+export async function createProduct(data: {
   name: string;
-  description?: string;
   price: number;
+  description: string;
   images: string[];
-  sizes: string[];
 }) {
-  const product = await prisma.product.create({
-    data: {
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      images: data.images,
-      sizes: data.sizes,
-    },
+  return prisma.product.create({
+    data,
   });
-
-  return product;
 }

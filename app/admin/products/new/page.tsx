@@ -1,140 +1,130 @@
 "use client";
 
-import { useState } from "react";
 import { UploadButton } from "@/utils/uploadthing";
+import { useState } from "react";
+import { createProduct } from "@/actions/products";
 
-import { prismaCreateProduct } from "@/actions/products";
-
-export default function AddProductPage() {
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [price, setPrice] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+export default function NewProductPage() {
+  const [imageUrl, setImageUrl] = useState("");
   const [sizes, setSizes] = useState<string[]>([]);
 
-  const sizeOptions = ["S", "M", "L", "XL"];
+  const allSizes = ["S", "M", "L", "XL", "XXL"];
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (!name || !price || images.length === 0) {
-      alert("Fill all required fields!");
-      return;
-    }
-
-    const product = await prismaCreateProduct({
-      name,
-      description: desc,
-      price: Number(price),
-      images,
-      sizes,
-    });
-
-    console.log("Saved Product:", product);
-    alert("Product Added Successfully!");
-  }
+  const toggleSize = (size: string) => {
+    setSizes((prev) =>
+      prev.includes(size)
+        ? prev.filter((s) => s !== size)
+        : [...prev, size]
+    );
+  };
 
   return (
-    <div className="max-w-3xl mx-auto py-12">
-      <h1 className="text-3xl font-bold mb-8">Add New Product</h1>
+    <div className="p-10 max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Add New T-Shirt</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* IMAGE UPLOADER */}
+      <div className="mb-6">
+        <UploadButton
+          endpoint="imageUploader"
+          onClientUploadComplete={(res) => {
+            const url = res[0].ufsUrl;
+            setImageUrl(url);
+          }}
+        />
 
-        {/* Name */}
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt="Preview"
+            className="mt-4 w-48 h-48 object-cover rounded border"
+          />
+        )}
+      </div>
+
+      {/* PRODUCT FORM */}
+      <form
+        action={async (formData) => {
+          await createProduct({
+            name: formData.get("name") as string,
+            price: Number(formData.get("price")),
+            description: formData.get("description") as string,
+            images: [formData.get("imageUrl") as string],
+            sizes,
+          });
+        }}
+        className="space-y-6"
+      >
+        <input type="hidden" name="imageUrl" value={imageUrl} />
+
+        {/* PRODUCT NAME */}
         <div>
-          <label className="block font-medium mb-1">Product Name *</label>
+          <label className="block mb-1 font-medium">Product Name</label>
           <input
-            className="w-full p-3 rounded border"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="name"
+            placeholder="Enter product name"
+            className="border p-2 w-full rounded"
             required
           />
         </div>
 
-        {/* Description */}
+        {/* PRICE */}
         <div>
-          <label className="block font-medium mb-1">Description</label>
-          <textarea
-            className="w-full p-3 rounded border"
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-          />
-        </div>
-
-        {/* Price */}
-        <div>
-          <label className="block font-medium mb-1">Price (₹) *</label>
+          <label className="block mb-1 font-medium">Price (₹)</label>
           <input
+            name="price"
             type="number"
-            className="w-full p-3 rounded border"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            placeholder="799"
+            className="border p-2 w-full rounded"
             required
           />
         </div>
 
-        {/* SIZES */}
+        {/* DESCRIPTION */}
         <div>
-          <label className="block font-medium mb-2">Available Sizes</label>
+          <label className="block mb-1 font-medium">Description</label>
+          <textarea
+            name="description"
+            placeholder="Write something about this T-shirt"
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
 
-          <div className="flex gap-4">
-            {sizeOptions.map((s) => (
+        {/* SIZE SELECTOR */}
+        <div>
+          <label className="block mb-2 font-medium">Available Sizes</label>
+          <div className="flex gap-3 flex-wrap">
+            {allSizes.map((size) => (
               <button
-                key={s}
                 type="button"
-                className={`px-4 py-2 border rounded ${
-                  sizes.includes(s)
+                key={size}
+                onClick={() => toggleSize(size)}
+                className={`px-4 py-2 border rounded 
+                  ${sizes.includes(size)
                     ? "bg-black text-white"
                     : "bg-white text-black"
-                }`}
-                onClick={() =>
-                  setSizes((prev) =>
-                    prev.includes(s)
-                      ? prev.filter((x) => x !== s)
-                      : [...prev, s]
-                  )
-                }
+                  }`}
               >
-                {s}
+                {size}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Image Upload */}
-        <div>
-          <label className="block font-medium mb-1">Product Images *</label>
-
-          <UploadButton
-            endpoint="productImage"
-            onClientUploadComplete={(res) => {
-              const urls = res.map((file) => file.url);
-              setImages(urls);
-            }}
-            onUploadError={() => alert("Upload failed")}
-          />
-
-          {/* Preview */}
-          <div className="flex gap-4 mt-4">
-            {images.map((img) => (
-              <img
-                key={img}
-                src={img}
-                className="w-24 h-24 rounded border object-cover"
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Submit */}
+        {/* SUBMIT BUTTON */}
         <button
-          type="submit"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="bg-black text-white px-6 py-3 rounded w-full font-semibold"
+          disabled={!imageUrl || sizes.length === 0}
         >
-          Add Product
+          Create Product
         </button>
+
+        {(!imageUrl || sizes.length === 0) && (
+          <p className="text-sm text-gray-500 text-center">
+            Upload an image and select at least one size to enable the button.
+          </p>
+        )}
       </form>
     </div>
   );
 }
-

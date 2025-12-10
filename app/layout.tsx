@@ -1,24 +1,11 @@
+import Providers from "./providers";
 import "./globals.css";
-import Navbar from "@/components/nav/Navbar";  
 
-export const metadata = {
-  title: {
-    default: "LOGO",
-    template: "%s | LOGO",
-  },
-  description: "T-shirt platform App",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }:{ children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-    
-       {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

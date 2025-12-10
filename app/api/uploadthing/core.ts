@@ -1,16 +1,15 @@
-import { createUploadthing, type FileRouter } from "uploadthing/server";
-import { UploadThingError } from "uploadthing/server";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  productImage: f({ image: { maxFileSize: "4MB" } })
-    .onUploadError(() => {
-      throw new UploadThingError("Upload failed");
+  imageUploader: f({ image: { maxFileSize: "4MB" } })
+    .middleware(async () => {
+      return { userId: "guest" };
     })
     .onUploadComplete(async ({ file }) => {
-      console.log("UPLOAD COMPLETE:", file.url);
-      return { uploadedUrl: file.url };
+      console.log("UPLOADTHING URL:", file.ufsUrl);
+      return { url: file.ufsUrl };
     }),
 } satisfies FileRouter;
 
