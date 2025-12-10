@@ -31,7 +31,7 @@ export default function Home() {
 
           <div className="flex gap-4 mt-4">
             <a
-              href="#products"
+              href="products"
               className="px-8 py-3 text-lg rounded-full bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition shadow-md"
             >
               Shop Now
