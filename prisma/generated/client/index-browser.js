@@ -151,8 +151,18 @@ exports.Prisma.OrderItemScalarFieldEnum = {
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  email: 'email',
   role: 'role',
+  createdAt: 'createdAt',
+  mobile: 'mobile',
+  email: 'email'
+};
+
+exports.Prisma.CartItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  quantity: 'quantity',
+  size: 'size',
   createdAt: 'createdAt'
 };
 
@@ -176,7 +186,8 @@ exports.Prisma.ModelName = {
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  User: 'User'
+  User: 'User',
+  CartItem: 'CartItem'
 };
 
 /**

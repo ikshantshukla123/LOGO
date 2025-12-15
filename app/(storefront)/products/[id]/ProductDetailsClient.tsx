@@ -1,9 +1,9 @@
-// app/(storefront)/products/[id]/ProductDetailsClient.tsx
 "use client";
 
 import Image from "next/image";
 import { useState } from "react";
 import { useCartStore, CartItem } from "@/store/cartStore";
+import UserInfoModal from "@/components/modals/UserInfoModal";
 
 interface ProductDetailsClientProps {
   product: {
@@ -18,7 +18,53 @@ interface ProductDetailsClientProps {
 
 export default function ProductDetailsClient({ product }: ProductDetailsClientProps) {
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [quantity, setQuantity] = useState<number>(1);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [actionType, setActionType] = useState<"cart" | "buy">("cart");
   const { addItem } = useCartStore();
+
+  const handleUserInfoSubmit = async (userData: { name: string; mobile: string }) => {
+    try {
+      // Save user info to database
+      const response = await fetch("/api/user/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save user");
+      }
+
+      // If action is "cart", add to cart
+      if (actionType === "cart") {
+        const cartItem: CartItem = {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images[0] || "/placeholder.jpg",
+          quantity,
+          size: selectedSize || undefined
+        };
+
+        addItem(cartItem);
+        alert("Added to cart successfully!");
+      } else {
+        // Handle buy now - you can redirect to checkout
+        alert("Proceeding to checkout...");
+        // Here you would typically redirect to checkout page
+        // router.push(`/checkout?product=${product.id}&quantity=${quantity}&size=${selectedSize}`);
+      }
+
+      setShowUserModal(false);
+      
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error instanceof Error ? error.message : "Something went wrong");
+    }
+  };
 
   const handleAddToCart = () => {
     if (product.sizes.length > 0 && !selectedSize) {
@@ -26,17 +72,26 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
       return;
     }
 
-    const cartItem: CartItem = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0] || "/placeholder.jpg",
-      quantity: 1,
-      size: selectedSize || undefined
-    };
+    setActionType("cart");
+    setShowUserModal(true);
+  };
 
-    addItem(cartItem);
-    alert("Added to cart!");
+  const handleBuyNow = () => {
+    if (product.sizes.length > 0 && !selectedSize) {
+      alert("Please select a size");
+      return;
+    }
+
+    setActionType("buy");
+    setShowUserModal(true);
+  };
+
+  const handleQuantityChange = (type: "increase" | "decrease") => {
+    if (type === "increase") {
+      setQuantity(prev => Math.min(prev + 1, 10));
+    } else {
+      setQuantity(prev => Math.max(prev - 1, 1));
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -151,9 +206,19 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-700 rounded-lg">
-                  <button className="px-4 py-3 hover:bg-gray-800">−</button>
-                  <span className="px-6 py-3 border-x border-gray-700">1</span>
-                  <button className="px-4 py-3 hover:bg-gray-800">+</button>
+                  <button 
+                    onClick={() => handleQuantityChange("decrease")}
+                    className="px-4 py-3 hover:bg-gray-800"
+                  >
+                    −
+                  </button>
+                  <span className="px-6 py-3 border-x border-gray-700">{quantity}</span>
+                  <button 
+                    onClick={() => handleQuantityChange("increase")}
+                    className="px-4 py-3 hover:bg-gray-800"
+                  >
+                    +
+                  </button>
                 </div>
                 <div className="text-sm text-gray-400">
                   Only 10 items left!
@@ -163,11 +228,14 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
                 >
                   Add to Cart
                 </button>
-                <button className="px-8 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 rounded-lg border border-gray-700 transition-colors">
+                <button 
+                  onClick={handleBuyNow}
+                  className="px-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20"
+                >
                   Buy Now
                 </button>
               </div>
@@ -190,6 +258,14 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
             </div>
           </div>
         </div>
+
+        {/* User Info Modal */}
+        <UserInfoModal
+          isOpen={showUserModal}
+          onClose={() => setShowUserModal(false)}
+          onSubmit={handleUserInfoSubmit}
+          type={actionType}
+        />
       </div>
     </div>
   );
