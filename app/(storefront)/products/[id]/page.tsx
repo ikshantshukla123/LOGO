@@ -1,16 +1,14 @@
 // app/(storefront)/products/[id]/page.tsx
 import { prisma } from "@/lib/db";
+import { Suspense } from 'react'
 import ProductDetailsClient from "./ProductDetailsClient";
+import ProductDetailsSkeleton from "@/components/products/ProductDetailsSkeleton";
 
 interface ProductDetailsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
-  // Resolve params first
-  const resolvedParams = await params;
-  const productId = resolvedParams.id;
-
+async function ProductDetailsContent({ productId }: { productId: string }) {
   // Fetch product from database
   const product = await prisma.product.findUnique({
     where: { id: productId },
@@ -27,6 +25,17 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
     );
   }
 
-  // Pass product data to client component
   return <ProductDetailsClient product={product} />;
+}
+
+export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
+  // Resolve params first
+  const resolvedParams = await params;
+  const productId = resolvedParams.id;
+
+  return (
+    <Suspense fallback={<ProductDetailsSkeleton />}>
+      <ProductDetailsContent productId={productId} />
+    </Suspense>
+  );
 }
