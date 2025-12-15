@@ -255,70 +255,70 @@ export default async function Home() {
               <div className="absolute -bottom-8 -right-8 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl"></div>
             </div>
 
-            <div className="space-y-8 order-1 lg:order-2">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20">
-                <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
-                <span className="text-sm font-medium text-purple-300">Custom Design Studio</span>
-              </div>
+         <div className="space-y-8 order-1 lg:order-2">
+  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20">
+    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+    <span className="text-sm font-medium text-blue-300">Custom Design Studio</span>
+  </div>
 
-              <h2 className="text-5xl lg:text-6xl font-bold text-balance">
-                Create Your
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400">
-                  Signature Style
-                </span>
-              </h2>
+  <h2 className="text-5xl lg:text-6xl font-bold text-balance">
+    Create Your
+    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+      Signature Style
+    </span>
+  </h2>
 
-              <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed text-pretty">
-                Unleash your creativity with our custom t-shirt designer. Upload your artwork, choose colors, add text,
-                and see your design come to life in real-time.
-              </p>
+  <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed text-pretty">
+    Unleash your creativity with our custom t-shirt designer. Upload your artwork, choose colors, add text,
+    and see your design come to life in real-time.
+  </p>
 
-              <div className="space-y-6 pt-4">
-                <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-blue-400/30 transition-all duration-300 group">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-3xl">🎨</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-xl mb-2 text-gray-100">Upload Your Art</h4>
-                    <p className="text-gray-400 leading-relaxed">Bring your own designs, logos, or artwork</p>
-                  </div>
-                </div>
+  <div className="space-y-6 pt-4">
+    <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-blue-400/30 transition-all duration-300 group">
+      <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+        <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div>
+        <h4 className="font-semibold text-xl mb-2 text-gray-100">Upload Your Art</h4>
+        <p className="text-gray-400 leading-relaxed">Bring your own designs, logos, or artwork</p>
+      </div>
+    </div>
 
-                <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-purple-400/30 transition-all duration-300 group">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-3xl">✨</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-xl mb-2 text-gray-100">Customize Everything</h4>
-                    <p className="text-gray-400 leading-relaxed">Choose colors, placement, size, and fabric</p>
-                  </div>
-                </div>
+    <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-blue-400/30 transition-all duration-300 group">
+      <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+        <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </div>
+      <div>
+        <h4 className="font-semibold text-xl mb-2 text-gray-100">Customize Everything</h4>
+        <p className="text-gray-400 leading-relaxed">Choose colors, placement, size, and fabric</p>
+      </div>
+    </div>
 
-                <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-pink-400/30 transition-all duration-300 group">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 border border-pink-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-3xl">🚚</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-xl mb-2 text-gray-100">Fast Delivery</h4>
-                    <p className="text-gray-400 leading-relaxed">Get your custom tee delivered in 3-5 days</p>
-                  </div>
-                </div>
-              </div>
-
+    <div className="flex items-start gap-5 p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-blue-400/30 transition-all duration-300 group">
+      <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-blue-500/10 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+        <svg className="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <div>
+        <h4 className="font-semibold text-xl mb-2 text-gray-100">Fast Delivery</h4>
+        <p className="text-gray-400 leading-relaxed">Get your custom tee delivered in 3-5 days</p>
+      </div>
+    </div>
+  </div>
               <div className="pt-6">
                 <Link
                   href="/custom"
-                  className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold text-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/40"
+                  className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-400 rounded-xl font-semibold text-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/40"
                 >
                   <span>Start Designing</span>
-                  <svg
-                    className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+                 
+                   
+                  
                 </Link>
               </div>
             </div>
