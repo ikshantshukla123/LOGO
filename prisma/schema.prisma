@@ -28,7 +28,8 @@ model Order {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  orderItems  OrderItem[]
+ orderItems OrderItem[]
+  user       User?     @relation(fields: [userId], references: [id])
 }
 
 model OrderItem {
@@ -47,6 +48,10 @@ model User {
   id        String   @id @default(cuid())
   name      String?
   email     String   @unique
+  mobile    String?   @unique  
   role      String   @default("USER")  // USER or ADMIN
   createdAt DateTime @default(now())
+
+   orders    Order[]
+
 }
