@@ -1,92 +1,63 @@
-// components/products/ProductCard.tsx
+import Image from "next/image";
 import Link from "next/link";
-import { Image } from "@imagekit/next";
 
 interface ProductCardProps {
   product: {
     id: string;
     name: string;
-    description: string | null;
+    description: string;
     price: number;
     images: string[];
-    sizes: string[];
   };
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const truncateDescription = (text: string | null, maxLength: number) => {
-    if (!text) return "No description available";
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
-
   return (
-    <Link
-      href={`/products/${product.id}`}
-      className="group bg-gray-900 rounded-lg border border-gray-800 hover:border-gray-700 hover:shadow-lg transition-all duration-300 overflow-hidden"
-    >
-      {/* Product Image */}
-      <div className="relative w-full h-64 bg-gray-800 overflow-hidden">
-        {product.images?.[0] ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            width={500}
-            height={500}
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-600">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        )}
+    <Link href={`/products/${product.id}`} className="group block relative">
+      {/* IMAGE CONTAINER - 3:4 Aspect Ratio (Standard for Fashion) */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900 rounded-sm">
+        
+        {/* Main Image */}
+        <Image
+          src={product.images[0]}
+          alt={product.name}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        
+        {/* Optional: Overlay Gradient for better text readability if needed */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+
+        {/* 'Quick Add' Button - Slides up on hover */}
+        <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+           <button className="w-full bg-white text-black py-3 text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 transition-colors shadow-lg">
+              Quick Add
+           </button>
+        </div>
+
+        {/* New Badge (Static for now, can be dynamic later) */}
+        <div className="absolute top-3 left-3">
+           <span className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider border border-white/10">
+              New
+           </span>
+        </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-5">
-        {/* Name and Price */}
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors mb-2 line-clamp-2">
-            {product.name}
-          </h2>
-          <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-blue-400">
-              {formatPrice(product.price)}
+      {/* TEXT DETAILS - Clean and Minimal */}
+      <div className="mt-4 flex flex-col gap-1">
+        <div className="flex justify-between items-start">
+            <h3 className="text-sm text-zinc-100 font-medium truncate pr-4">
+              {product.name}
+            </h3>
+            <span className="text-sm font-semibold text-white">
+              ${product.price}
             </span>
-            {product.sizes && product.sizes.length > 0 && (
-              <span className="text-xs font-medium px-2 py-1 bg-gray-800 text-gray-400 rounded">
-                {product.sizes.length} sizes
-              </span>
-            )}
-          </div>
         </div>
-
-        {/* Description */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed">
-            {truncateDescription(product.description, 100)}
-          </p>
-        </div>
-
-        {/* View Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-800">
-          <span className="text-sm text-gray-500">
-            View details →
-          </span>
-          <button className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-md hover:bg-gray-700 transition-colors">
-            View
-          </button>
-        </div>
+        <p className="text-xs text-zinc-500 uppercase tracking-wide line-clamp-1">
+           {/* Fallback to 'T-Shirt' if no category/description provided */}
+           Heavyweight Cotton
+        </p>
       </div>
     </Link>
   );

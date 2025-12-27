@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
     // Set auth token
     await setAuthToken({
       userId: user.id,
-      mobile: user.mobile,
+      // FIX: Added '!' to assert mobile is not null, or fallback to empty string
+      mobile: user.mobile || mobile, 
       name: user.name || undefined
     });
 

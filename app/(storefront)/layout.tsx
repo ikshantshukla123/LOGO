@@ -2,19 +2,19 @@
 import { Suspense } from "react";
 import Footer from "@/components/footer/Footer";
 import Navbar from "@/components/nav/Navbar";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import NavigationSkeleton from "@/components/nav/NavigationSkeleton";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
 
 export default function StoreFrontLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      {/* Suspense for Navbar with skeleton fallback */}
+    <div className="bg-black min-h-screen text-white"> 
       <Suspense fallback={<NavigationSkeleton />}>
         <Navbar />
       </Suspense>
       
-      <main className="pt-4">
-        {/* Suspense for page content */}
+      {/* Removed pt-4 to allow Hero section to touch the navbar */}
+      <main>
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-[60vh]">
             <LoadingSpinner />
@@ -24,8 +24,8 @@ export default function StoreFrontLayout({ children }: { children: React.ReactNo
         </Suspense>
       </main>
       
-      {/* Footer doesn't usually need Suspense as it's static */}
       <Footer />
+      <GlobalAuthModal />
     </div>
   );
 }

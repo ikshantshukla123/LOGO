@@ -2,14 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-import { ShoppingBag, Search, Menu, X, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils"; // Standard Tailwind class merger utility
+import { useAuthStore } from "@/store/authStore"; 
+import { ShoppingBag, Search, Menu, X, ChevronDown, User } from "lucide-react";
+import { cn } from "@/lib/utils"; 
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  
   const { items } = useCartStore();
+  const { user, openModal, logout } = useAuthStore();
+  
   const cartCount = items.reduce((t, i) => t + i.quantity, 0);
 
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -22,6 +27,16 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // --- HANDLER: Intercept Cart Click ---
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault(); 
+    if (!user) {
+      openModal(); // Not logged in? Show Modal
+    } else {
+      router.push("/cart"); // Logged in? Go to Cart
+    }
+  };
 
   return (
     <header 
@@ -69,24 +84,50 @@ export default function Navbar() {
           </nav>
         </div>
 
-        {/* RIGHT: SEARCH & CART */}
-        <div className="flex items-center gap-4">
+        {/* RIGHT: SEARCH, AUTH & CART */}
+        <div className="flex items-center gap-6">
+          {/* SEARCH BAR */}
           <div className="hidden md:flex items-center bg-zinc-900/50 border border-zinc-800 px-3 py-1.5 rounded-lg focus-within:ring-1 ring-zinc-500 transition-all">
             <Search className="w-4 h-4 text-zinc-500" />
             <input
               placeholder="Search..."
-              className="bg-transparent border-none outline-none text-sm ml-2 w-40 focus:w-56 transition-all text-white"
+              className="bg-transparent border-none outline-none text-sm ml-2 w-40 focus:w-56 transition-all text-white placeholder:text-zinc-500"
             />
           </div>
 
-          <Link href="/cart" className="relative p-2 hover:bg-zinc-900 rounded-full transition-colors">
+          {/* AUTH BUTTONS (NEW) */}
+          {user ? (
+             <div className="hidden md:flex items-center gap-4">
+                <span className="text-sm font-bold text-zinc-300">Hi, {user.name?.split(' ')[0]}</span>
+                <button 
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                  }}
+                  className="text-xs text-zinc-500 hover:text-white uppercase tracking-wider"
+                >
+                  Logout
+                </button>
+             </div>
+          ) : (
+            <button 
+  onClick={() => openModal('login')} // <--- Fix: Wrap in arrow function
+  className="hidden md:flex items-center gap-2 text-sm font-bold uppercase tracking-wider hover:text-zinc-300 transition-colors"
+>
+  <User className="w-5 h-5" />
+  <span>Sign In</span>
+</button>
+          )}
+
+          {/* CART ICON (Protected) */}
+          <div onClick={handleCartClick} className="relative cursor-pointer p-2 hover:bg-zinc-900 rounded-full transition-colors">
             <ShoppingBag className="w-6 h-6 text-zinc-200" />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 bg-blue-600 text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full text-white">
                 {cartCount}
               </span>
             )}
-          </Link>
+          </div>
 
           {/* MOBILE TOGGLE */}
           <button 
@@ -103,12 +144,24 @@ export default function Navbar() {
         <div className="lg:hidden fixed inset-0 top-[64px] bg-black z-40 p-6 flex flex-col gap-6 animate-in slide-in-from-right">
            <NavItem label="Home" href="/" active={pathname === "/"} />
            <NavItem label="All Products" href="/products" active={pathname === "/products"} />
-           <NavItem label="Cart" href="/cart" active={pathname === "/cart"} />
+           
+           {/* Mobile Auth Options */}
+           {user ? (
+             <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="text-left text-sm font-medium text-red-500">
+               Logout ({user.name})
+             </button>
+           ) : (
+             <button onClick={() => { openModal(); setIsMobileMenuOpen(false); }} className="text-left text-sm font-medium text-white">
+               Sign In
+             </button>
+           )}
         </div>
       )}
     </header>
   );
 }
+
+// --- HELPER COMPONENTS ---
 
 function NavItem({ label, href, active }: { label: string; href: string; active: boolean }) {
   return (
