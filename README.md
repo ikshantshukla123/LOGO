@@ -1,320 +1,134 @@
+# 🛍️ LOGO | Modern E-Commerce Architecture
+
+![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
+![Zustand](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)
+
+![Project Banner](public/images/models/modaltwo.jpeg)
+## 📖 About The Project
+
+**LOGO** is a production-ready e-commerce storefront designed with a focus on **User Experience (UX)** and **Performance**. Unlike standard template sites, this project implements advanced patterns like **Optimistic UI updates** and **Context-Aware Authentication** to create a seamless, app-like feel.
+
+The architecture is explicitly split between a public **Storefront** and a protected **Admin Panel**, demonstrating a secure and scalable folder structure suitable for enterprise applications.
+
+> **Live Demo:** [https://tshirt-five-lovat.vercel.app/]
+>
+> **Repository:** [https://github.com/ikshantshukla123/LOGO](https://github.com/ikshantshukla123/LOGO)
+
+---
+
+## 🏗️ Architecture & File Structure
+
+This project follows a **Domain-Driven Design** approach using the Next.js App Router. The codebase is strictly separated into public and administrative concerns.
+
+```text
 src/
  ├── app/
- │    ├── (storefront)/
- │    │     ├── layout.tsx
- │    │     ├── page.tsx
- │    │     ├── products/
- │    │     │     ├── page.tsx
- │    │     │     └── [id]/page.tsx
- │    │     ├── cart/
- │    │     │     └── page.tsx
- │    │     ├── custom/
- │    │     │     └── page.tsx
- │    │     └── about/
- │    │           └── page.tsx
+ │    ├── (storefront)/       #  PUBLIC DOMAIN
+ │    │     ├── layout.tsx    # Store-specific layout (Navbar/Footer)
+ │    │     ├── products/     # Product Listing & Details (SSR)
+ │    │     ├── cart/         # Shopping Cart (Client + Optimistic UI)
+ │    │     └── custom/       # Custom Design Tool (Planned)
  │    │
- │    ├── admin/
- │    │     ├── layout.tsx
- │    │     ├── page.tsx
- │    │     ├── products/
- │    │     │     ├── page.tsx
- │    │     │     ├── new/page.tsx
- │    │     │     └── [id]/page.tsx
- │    │     ├── orders/
- │    │     └── users/
+ │    ├── admin/              # PROTECTED DOMAIN (CMS)
+ │    │     ├── layout.tsx    # Admin Sidebar & Auth Guard
+ │    │     ├── products/     # CRUD Operations for Inventory
+ │    │     └── orders/       # Order Management Dashboard
  │    │
- │    ├── api/
- │    │     ├── auth/
- │    │     │     └── [...nextauth]/route.ts
- │    │     ├── products/
- │    │     │     ├── route.ts
- │    │     │     └── [id]/route.ts
- │    │     ├── uploadthing/
- │    │     │     ├── core.ts
- │    │     │     └── route.ts
- │    │     ├── orders/route.ts
- │    │     └── users/route.ts
- │    │
- │    ├── globals.css
- │    └── layout.tsx
+ │    └── api/                # SERVERLESS BACKEND
+ │          ├── auth/         # JWT Authentication Routes
+ │          ├── cart/         # Cart Sync & Persistence Logic
+ │          └── webhooks/     # Payment Gateways (Stripe/Razorpay)
  │
- ├── components/
- │    ├── ui/
- │    ├── nav/
- │    ├── products/
- │    ├── cart/
- │    ├── layout/
- │    └── shared/
+ ├── components/              #  ATOMIC UI COMPONENTS
+ │    ├── ui/                 # Reusable primitives (Buttons, Modals)
+ │    ├── nav/                # Navigation & Mega-Menus
+ │    └── products/           # Product Cards & Grids
  │
- ├── store/
+ ├── store/                   #  GLOBAL STATE (Zustand)
+ │    ├── authStore.ts        # User Session Management
+ │    └── cartStore.ts        # Optimistic Cart Logic
  │
- ├── prisma/NeonDb
+ ├── lib/                     #  UTILITIES
+ │    ├── db.ts               # Prisma Singleton Client
+ │    └── jwt.ts              # Token Generation & Verification
  │
- ├── lib/
- │
- ├── types/
- │
- ├── hooks/
- │
- ├── public/
- │
- ├── middleware.ts
- ├── tsconfig.json
- ├── package.json
- └── .env
+ └── prisma/                  # 💾 DATABASE
+      └── schema.prisma       # PostgreSQL Schema
+ Key Technical Features
+1. ⚡ Optimistic Cart UI
+To eliminate network latency, the cart state updates instantly on the client side using a temporary ID.
 
+The API sync happens in the background.
 
+If the server request fails, the state automatically rolls back, ensuring data consistency without sacrificing speed.
 
+Code: src/store/cartStore.ts
 
-________________________________________________________
+2.  Context-Aware Global Auth
+Implemented a robust "Login-First" protection system without blocking navigation.
 
-NOW EXPLANATION FOR EACH FOLDER + FILE (line-by-line)
-src/app/
+Users can browse freely.
 
-This is the main Next.js App Router folder.
-Every folder inside becomes a route, and every page.tsx is a page.
+Smart Interception: Clicking "Add to Cart" or "Checkout" triggers a global modal if unauthenticated.
 
- (storefront) — PUBLIC WEBSITE
+Dynamic UI: The modal title changes based on intent (e.g., "Login to add to bag" vs "Welcome Back").
 
-This folder contains your customer-facing pages.
+3.  High-End Visual Design
+Glassmorphism: Used backdrop-filter and semi-transparent layers for a modern feel.
 
-(storefront)/
-  page.tsx      → Home page (hero, grid, etc.)
-  layout.tsx    → Layout for only storefront pages (navbar, footer)
+Responsive: Mobile-first approach with a custom hamburger menu and mega-menu for desktop.
 
+Micro-interactions: Loading spinners and success animations provide immediate user feedback.
 
-Why separate?
-✔ To isolate public UI from admin UI
-✔ Cleaner navigation
-✔ Better maintainability
+ Getting Started
+Follow these steps to run the project locally.
 
- products/
-products/
-   page.tsx       → Products listing page
-   [id]/page.tsx  → Product details page (dynamic route)
+1. Clone & Install
+Bash
 
+git clone [https://github.com/ikshantshukla123/LOGO.git](https://github.com/ikshantshukla123/LOGO.git)
+cd LOGO
+npm install
+2. Environment Setup
+Create a .env file in the root directory:
 
-Why?
-✔ All product-related pages live together
-✔ Easy to manage filters, categories, etc.
+Code snippet
 
-cart/
-cart/
-   page.tsx → Full cart page (view items, checkout button)
+# Database (NeonDB / PostgreSQL)
+DATABASE_URL="postgresql://user:password@host/db?sslmode=require"
 
+# Authentication
+JWT_SECRET="your-super-secret-key-change-this"
 
-Why?
-✔ Cart is treated as a separate page
-✔ Works with Zustand client-side
+# Application URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+3. Database Migration
+Bash
 
- custom/
-custom/
-   page.tsx → Page where user uploads design to create customized T-shirt
+npx prisma db push
+npx prisma generate
+4. Run Development Server
+Bash
 
+npm run dev
+Open http://localhost:3000 to view the app.
 
-Why?
-✔ A dedicated customization page makes architecture clean
-✔ Easy to expand later (colors, text editor, canvas, etc.)
+ Roadmap & Status
+This project is currently in Active Development.
 
- about/
-about/
-   page.tsx → About page
+[x] Core Architecture (Next.js 15 Setup)
 
-admin/ — PROTECTED ADMIN PANEL
+[x] Authentication System (JWT + Cookies)
 
-This is for you (the owner/admin).
+[x] Product Browsing (Listing & Details)
 
-admin/
-   layout.tsx → Admin-only layout (sidebar, admin navbar)
-   page.tsx   → Admin Dashboard
+[x] Shopping Cart (Add/Remove/Sync)
 
+[x] Admin Dashboard (UI Scaffolded, Logic In Progress) [at /admin]
 
-Why separate from storefront?
-✔ Security
-✔ Keeps admin UI totally isolated
-✔ Forces clean architecture
+[ ] Checkout & Payments (Stripe Integration Pending)
 
- admin/products/
-products/
-   page.tsx        → Show all products (table)
-   new/page.tsx    → Add new product
-   [id]/page.tsx   → Edit product
-
-
-Why?
-✔ Matches CRUD logic
-✔ Easy to build product management screens
-
- admin/orders/
-orders/
-   page.tsx → List all orders
-
- admin/users/
-users/
-   page.tsx → User management
-
- api/ — FULL BACKEND INSIDE NEXT.JS
-
-Every file here acts like a backend route (like Express.js).
-
- api/auth/
-auth/[...nextauth]/route.ts → NextAuth authentication backend
-
-
-Why?
-✔ Handles login/logout
-✔ Admin authentication
-✔ Session tokens
-
- api/products/
-products/route.ts        → GET all products, POST create product
-products/[id]/route.ts   → PATCH update, DELETE remove product
-
-
-Why?
-✔ CRUD API
-✔ Perfect for admin panel
-✔ Next.js automatically makes this a serverless API
-
- api/uploadthing/
-core.ts  → UploadThing server config
-route.ts → Upload endpoints for images
-
-
-Why?
-✔ Handles image uploads (product images)
-✔ Browser → cloud upload
-✔ No need for S3 manually
-
-api/orders/
-route.ts → Creating orders, updating payment status
-
- api/users/
-route.ts → CRUD for users (optional)
-
- globals.css
-
-Your global CSS (Tailwind imports here).
-
-globals.css → Contains Tailwind base, custom styles
-
- layout.tsx
-
-This is the true root layout for the entire app.
-
-layout.tsx → Wraps the whole app (theme provider, metadata)
-
- components/ — All reusable UI parts
-ui/
-
-Small reusable UI components:
-
-ui/Button.tsx
-ui/Input.tsx
-ui/Modal.tsx
-
-
-Why?
-✔ DRY principle
-✔ Reuse everywhere
-
-nav/
-
-Your navbar / CardNav etc.
-
-nav/Navbar.tsx
-nav/CardNav.tsx
-
-products/
-products/ProductCard.tsx
-products/ProductGrid.tsx
-products/ProductForm.tsx (for admin)
-
-cart/
-cart/CartItem.tsx
-cart/CartDrawer.tsx
-
-layout/
-layout/Footer.tsx
-layout/Sidebar.tsx
-
-shared/
-shared/ThemeToggle.tsx
-shared/Logo.tsx
-
- store/ — Zustand state management
-store/cartStore.ts     → Cart items + quantity + total
-store/themeStore.ts    → Light/dark mode
-store/adminStore.ts    → Admin filters/dashboard state
-
-
-Why?
-✔ All global states in one folder
-✔ Easy to maintain
-✔ Cart logic stays isolated
-
- prisma/ — Database layer
-schema.prisma → Database tables
-seed.ts       → Seed data for dev
-
-
-Why?
-✔ Clear data model
-✔ Easy migrations
-✔ Works with NeonDB
-
- lib/ — Backend utilities
-db.ts          → Prisma client
-auth.ts        → NextAuth config
-validators/    → Zod validation schemas
-uploadthing.ts → UploadThing helper functions
-utils.ts       → Common functions
-stripe.ts      → (payment handling)
-
-
-Why?
-✔ Shared backend logic
-✔ Clean separation from UI
-
- types/ — Pure TypeScript types
-types/product.ts
-types/user.ts
-types/order.ts
-
-
-Why?
-✔ Reuse types across client + server
-✔ Fully type-safe e-commerce
-
- hooks/ — Custom React hooks
-hooks/useScroll.ts
-hooks/useMediaQuery.ts
-hooks/useMounted.ts
-hooks/useDebounce.ts
-
-
-Why?
-✔ Common logic extracted out
-✔ Keeps components clean
- public/ — Images and static assets
-public/
-  logo.svg
-  banners/
-  tshirts/
-  models/
-
-
-Why?
-✔ Next.js can serve instantly
-✔ Works with next/image
-✔ Perfect for product images
-
-
-
- middleware.ts
-middleware.ts → Protect admin routes (role-based)
-
-
-Why?
-✔ Blocks unauthorized users from accessing /admin/**
-✔ Security layer
+[ ] Order History (Schema Ready)
