@@ -6,7 +6,7 @@
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
 ![Zustand](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)
 
-![Project Banner](public/images/models/modaltwo.jpeg)
+![Project Banner](public/images/models/modal.png)
 ## 📖 About The Project
 
 **LOGO** is a production-ready e-commerce storefront designed with a focus on **User Experience (UX)** and **Performance**. Unlike standard template sites, this project implements advanced patterns like **Optimistic UI updates** and **Context-Aware Authentication** to create a seamless, app-like feel.
