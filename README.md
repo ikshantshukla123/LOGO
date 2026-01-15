@@ -1,134 +1,294 @@
-# 🛍️ LOGO | Modern E-Commerce Architecture
+# ThreadForge - Modern T-Shirt E-commerce Platform
 
-![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
-![Zustand](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)
+A full-stack Next.js e-commerce platform built for custom t-shirt sales with comprehensive admin dashboard, secure authentication, and seamless shopping experience.
 
-![Project Banner](public/images/models/modal.png)
-## 📖 About The Project
+**Live Demo:** `https://your-domain.com` *(coming soon)*
 
-**LOGO** is a production-ready e-commerce storefront designed with a focus on **User Experience (UX)** and **Performance**. Unlike standard template sites, this project implements advanced patterns like **Optimistic UI updates** and **Context-Aware Authentication** to create a seamless, app-like feel.
+## 📸 Screenshots
 
-The architecture is explicitly split between a public **Storefront** and a protected **Admin Panel**, demonstrating a secure and scalable folder structure suitable for enterprise applications.
+| Homepage | All Products | Product Details | Admin Dashboard |
+|----------|-------------|----------------|----------------|
+| ![Homepage](./public/readme/home.png) | ![All Products](./public/readme/allproduct.png) | ![Product Details](./public/readme/product.png) | ![Admin Dashboard](./public/readme/admin.png) |
 
-> **Live Demo:** [https://tshirt-five-lovat.vercel.app/]
->
-> **Repository:** [https://github.com/ikshantshukla123/LOGO](https://github.com/ikshantshukla123/LOGO)
+
 
 ---
 
-## 🏗️ Architecture & File Structure
+## ✨ Features
 
-This project follows a **Domain-Driven Design** approach using the Next.js App Router. The codebase is strictly separated into public and administrative concerns.
+### 🛍️ **Customer Features**
+- **Product Browsing** - Responsive product catalog with filtering and search
+- **Product Details** - High-quality image gallery with size selection
+- **Shopping Cart** - Persistent cart with quantity management
+- **User Authentication** - Secure JWT-based auth with mobile verification
+- **Order Management** - Order history and status tracking
+- **Responsive Design** - Mobile-first responsive UI with dark mode support
 
-```text
-src/
- ├── app/
- │    ├── (storefront)/       #  PUBLIC DOMAIN
- │    │     ├── layout.tsx    # Store-specific layout (Navbar/Footer)
- │    │     ├── products/     # Product Listing & Details (SSR)
- │    │     ├── cart/         # Shopping Cart (Client + Optimistic UI)
- │    │     └── custom/       # Custom Design Tool (Planned)
- │    │
- │    ├── admin/              # PROTECTED DOMAIN (CMS)
- │    │     ├── layout.tsx    # Admin Sidebar & Auth Guard
- │    │     ├── products/     # CRUD Operations for Inventory
- │    │     └── orders/       # Order Management Dashboard
- │    │
- │    └── api/                # SERVERLESS BACKEND
- │          ├── auth/         # JWT Authentication Routes
- │          ├── cart/         # Cart Sync & Persistence Logic
- │          └── webhooks/     # Payment Gateways (Stripe/Razorpay)
- │
- ├── components/              #  ATOMIC UI COMPONENTS
- │    ├── ui/                 # Reusable primitives (Buttons, Modals)
- │    ├── nav/                # Navigation & Mega-Menus
- │    └── products/           # Product Cards & Grids
- │
- ├── store/                   #  GLOBAL STATE (Zustand)
- │    ├── authStore.ts        # User Session Management
- │    └── cartStore.ts        # Optimistic Cart Logic
- │
- ├── lib/                     #  UTILITIES
- │    ├── db.ts               # Prisma Singleton Client
- │    └── jwt.ts              # Token Generation & Verification
- │
- └── prisma/                  # 💾 DATABASE
-      └── schema.prisma       # PostgreSQL Schema
- Key Technical Features
-1. ⚡ Optimistic Cart UI
-To eliminate network latency, the cart state updates instantly on the client side using a temporary ID.
+### 🔧 **Admin Features**
+- **Dashboard Analytics** - Sales metrics, revenue tracking, and key statistics
+- **Product Management** - CRUD operations with image upload via UploadThing
+- **Order Management** - Order processing and status updates
+- **User Management** - Customer data and account management
+- **Secure Admin Access** - Protected admin routes with role-based authentication
 
-The API sync happens in the background.
+---
 
-If the server request fails, the state automatically rolls back, ensuring data consistency without sacrificing speed.
+## 🚀 Tech Stack
 
-Code: src/store/cartStore.ts
+### **Frontend**
+- **Next.js 16** - React framework with App Router
+- **TypeScript** - Type safety and better developer experience
+- **TailwindCSS 4** - Utility-first CSS framework
+- **Lucide Icons** - Modern icon library
+- **React Hook Form + Zod** - Form handling with validation
+- **Zustand** - Lightweight state management
+- **React Hot Toast** - Beautiful notifications
 
-2.  Context-Aware Global Auth
-Implemented a robust "Login-First" protection system without blocking navigation.
+### **Backend & Database**
+- **Next.js API Routes** - Server-side API endpoints
+- **Prisma ORM** - Type-safe database client
+- **Neon PostgreSQL** - Serverless PostgreSQL database
+- **JWT Authentication** - Secure token-based authentication
 
-Users can browse freely.
+### **File Storage & Media**
+- **UploadThing** - File upload service
+- **ImageKit** - Image optimization and delivery
 
-Smart Interception: Clicking "Add to Cart" or "Checkout" triggers a global modal if unauthenticated.
+### **Development Tools**
+- **ESLint** - Code linting and formatting
+- **PostCSS** - CSS processing
+- **TypeScript** - Static type checking
 
-Dynamic UI: The modal title changes based on intent (e.g., "Login to add to bag" vs "Welcome Back").
+---
 
-3.  High-End Visual Design
-Glassmorphism: Used backdrop-filter and semi-transparent layers for a modern feel.
+## 📁 Project Structure
 
-Responsive: Mobile-first approach with a custom hamburger menu and mega-menu for desktop.
+```
+tshirt/
+├── app/                    # Next.js App Router
+│   ├── (storefront)/      # Customer-facing pages
+│   │   ├── products/      # Product catalog & details
+│   │   ├── cart/          # Shopping cart
+│   │   └── about/         # About page
+│   ├── admin/             # Admin dashboard
+│   │   ├── products/      # Product management
+│   │   ├── orders/        # Order management
+│   │   └── users/         # User management
+│   └── api/               # API routes
+│       ├── auth/          # Authentication endpoints
+│       ├── cart/          # Cart operations
+│       └── products/      # Product CRUD operations
+├── components/            # Reusable UI components
+│   ├── admin/            # Admin-specific components
+│   ├── auth/             # Authentication components
+│   ├── nav/              # Navigation components
+│   └── shared/           # Shared components
+├── actions/              # Server actions
+├── lib/                  # Utility functions
+├── store/                # Zustand state stores
+├── prisma/               # Database schema & migrations
+└── types/                # TypeScript type definitions
+```
 
-Micro-interactions: Loading spinners and success animations provide immediate user feedback.
+---
 
- Getting Started
-Follow these steps to run the project locally.
+## 🔐 Environment Variables
 
-1. Clone & Install
-Bash
+Create a `.env` file in the root directory:
 
-git clone [https://github.com/ikshantshukla123/LOGO.git](https://github.com/ikshantshukla123/LOGO.git)
-cd LOGO
+```env
+# Database (Neon PostgreSQL)
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
+
+# JWT Authentication
+JWT_SECRET="your-super-secret-jwt-key"
+
+# File Upload (UploadThing)
+UPLOADTHING_TOKEN="your-uploadthing-token"
+
+# Image Optimization (ImageKit)
+IMAGEKIT_PUBLIC_KEY="public_your-key"
+IMAGEKIT_PRIVATE_KEY="private_your-key"
+NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your-id"
+
+# Admin Access
+ADMIN_MOBILE="8109537034"
+ADMIN_NAME="ikshant"
+ADMIN_CODE="ADMIN2024"
+
+# Environment
+NODE_ENV="development"
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+### **Prerequisites**
+- Node.js 18+ 
+- npm or yarn
+- PostgreSQL database (Neon recommended)
+
+### **1. Clone & Install**
+```bash
+git clone https://github.com/your-username/threadforge.git
+cd threadforge
 npm install
-2. Environment Setup
-Create a .env file in the root directory:
+```
 
-Code snippet
-
-# Database (NeonDB / PostgreSQL)
-DATABASE_URL="postgresql://user:password@host/db?sslmode=require"
-
-# Authentication
-JWT_SECRET="your-super-secret-key-change-this"
-
-# Application URL
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-3. Database Migration
-Bash
-
-npx prisma db push
+### **2. Database Setup**
+```bash
+# Generate Prisma client
 npx prisma generate
-4. Run Development Server
-Bash
 
+# Run database migrations
+npx prisma migrate deploy
+
+# Seed database (optional)
+npx prisma db seed
+```
+
+### **3. Start Development Server**
+```bash
 npm run dev
-Open http://localhost:3000 to view the app.
+```
 
- Roadmap & Status
-This project is currently in Active Development.
+Visit `http://localhost:3000` to see the application.
 
-[x] Core Architecture (Next.js 15 Setup)
+---
 
-[x] Authentication System (JWT + Cookies)
+## 🏗️ Build & Production
 
-[x] Product Browsing (Listing & Details)
+```bash
+# Build for production
+npm run build
 
-[x] Shopping Cart (Add/Remove/Sync)
+# Start production server
+npm start
 
-[x] Admin Dashboard (UI Scaffolded, Logic In Progress) [at /admin]
+# Lint code
+npm run lint
+```
 
-[ ] Checkout & Payments (Stripe Integration Pending)
+---
 
-[ ] Order History (Schema Ready)
+## 🛡️ Admin Access
+
+### **Admin Dashboard**
+- **URL:** `/admin`
+- **Mobile:** `8109537034`
+- **Code:** `ADMIN2024`
+
+The admin dashboard is protected with role-based authentication. Only users with `ADMIN` role can access admin routes.
+
+### **Admin Features:**
+- Product management (create, read, update, delete)
+- Order processing and status updates
+- User management and analytics
+- Sales dashboard with key metrics
+
+---
+
+## 🔌 API Routes
+
+### **Authentication**
+- `POST /api/auth/admin-login` - Admin authentication
+- `POST /api/auth/register` - User registration
+- `GET /api/auth/check-user` - Verify user session
+
+### **Products**
+- `GET /api/products` - Fetch all products
+- `POST /api/products` - Create new product (admin)
+- `PUT /api/products/[id]` - Update product (admin)
+- `DELETE /api/products/[id]` - Delete product (admin)
+
+### **Cart & Orders**
+- `GET /api/cart` - Fetch user cart
+- `POST /api/cart` - Add item to cart
+- `DELETE /api/cart/[id]` - Remove item from cart
+- `POST /api/cart/clear` - Clear cart
+
+### **File Upload**
+- `POST /api/uploadthing` - Handle file uploads
+
+---
+
+## 🗄️ Database Schema
+
+### **Core Models**
+```prisma
+Product {
+  id, name, description, price
+  images[], sizes[]
+  cartItems[], orderItems[]
+}
+
+User {
+  id, name, email, mobile, role
+  cartItems[], orders[]
+}
+
+Order {
+  id, userId, totalAmount, status
+  orderItems[]
+}
+
+CartItem {
+  id, userId, productId, quantity, size
+}
+```
+
+**Database:** PostgreSQL on Neon (serverless)  
+**ORM:** Prisma with type-safe client generation
+
+---
+
+## 🚧 Future Improvements
+
+- **Payment Integration** - Stripe/Razorpay for secure payments
+- **Inventory Management** - Stock tracking and low-stock alerts  
+- **Email Notifications** - Order confirmations and status updates
+- **Advanced Analytics** - Detailed sales reports and customer insights
+- **Product Reviews** - Customer rating and review system
+- **Wishlist Feature** - Save products for later
+- **Multi-language Support** - Internationalization (i18n)
+- **PWA Support** - Progressive Web App capabilities
+- **Advanced Search** - Filters, sorting, and faceted search
+
+---
+
+## 🤝 Contributing
+
+1. **Fork the repository**
+2. **Create feature branch:** `git checkout -b feature/amazing-feature`
+3. **Commit changes:** `git commit -m 'Add amazing feature'`
+4. **Push to branch:** `git push origin feature/amazing-feature`  
+5. **Open Pull Request**
+
+### **Development Guidelines**
+- Follow TypeScript best practices
+- Use ESLint and Prettier for code formatting
+- Write meaningful commit messages
+- Update documentation for new features
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Developer
+
+**Ikshant Shukla**  
+*Full Stack Developer*
+
+- Portfolio: `https://your-portfolio.com`
+- LinkedIn: `https://linkedin.com/in/your-profile`  
+- GitHub: `https://github.com/your-username`
+
+---
+
+*Built with ❤️ using Next.js, TypeScript, and modern web technologies*
