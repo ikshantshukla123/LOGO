@@ -1,8 +1,8 @@
-# ThreadForge - Modern T-Shirt E-commerce Platform
+#  Modern T-Shirt E-commerce Platform
 
 A full-stack Next.js e-commerce platform built for custom t-shirt sales with comprehensive admin dashboard, secure authentication, and seamless shopping experience.
 
-**Live Demo:** `https://your-domain.com` *(coming soon)*
+**Live Demo:** `https://tshirt-five-lovat.vercel.app/` 
 
 ## 📸 Screenshots
 
@@ -274,21 +274,6 @@ CartItem {
 
 ---
 
-## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Developer
-
-**Ikshant Shukla**  
-*Full Stack Developer*
-
-- Portfolio: `https://your-portfolio.com`
-- LinkedIn: `https://linkedin.com/in/your-profile`  
-- GitHub: `https://github.com/your-username`
-
----
 
 *Built with ❤️ using Next.js, TypeScript, and modern web technologies*
