@@ -1,6 +1,7 @@
 "use client";
 
 import { ImageKitProvider } from "@imagekit/next";
+import ToastProvider from "@/components/ToastProvider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT!}
     >
       {children}
+      <ToastProvider />
     </ImageKitProvider>
   );
 }

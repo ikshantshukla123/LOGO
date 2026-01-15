@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, X, Save, Package } from "lucide-react";
+import { Plus, X, Upload, Package } from "lucide-react";
 import Image from "next/image";
 import LoadingSpinner from "@/components/admin/LoadingSpinner";
-import { updateProduct } from "@/actions/admin/products";
+import { createProduct } from "@/actions/admin/products";
 import { UploadButton } from "@/utils/uploadthing";
 import toast from "react-hot-toast";
 
@@ -24,21 +24,10 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 const AVAILABLE_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
-interface EditProductFormProps {
-  product: {
-    id: string;
-    name: string;
-    description: string | null;
-    price: number;
-    images: string[];
-    sizes: string[];
-  };
-}
-
-export default function EditProductForm({ product }: EditProductFormProps) {
+export default function NewProductPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageUrls, setImageUrls] = useState<string[]>(product.images);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   const {
     register,
@@ -49,24 +38,20 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: product.name,
-      description: product.description || "",
-      price: product.price / 100, // Convert from cents
-      sizes: product.sizes,
-      images: product.images,
+      name: "",
+      description: "",
+      price: 0,
+      sizes: [],
+      images: [],
     },
   });
 
   const watchedSizes = watch("sizes");
 
-  // Update images when imageUrls changes
-  useEffect(() => {
-    setValue("images", imageUrls);
-  }, [imageUrls, setValue]);
-
   const removeImage = (index: number) => {
     const updatedImages = imageUrls.filter((_, i) => i !== index);
     setImageUrls(updatedImages);
+    setValue("images", updatedImages);
   };
 
   const toggleSize = (size: string) => {
@@ -80,20 +65,19 @@ export default function EditProductForm({ product }: EditProductFormProps) {
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      const result = await updateProduct({
-        id: product.id,
+      const result = await createProduct({
         ...data,
         price: data.price, // Will be converted to cents in the action
       });
 
       if (result.success) {
-        toast.success("Product updated successfully!");
+        toast.success("Product created successfully!");
         router.push("/admin/products");
       } else {
-        toast.error(result.error || "Failed to update product");
+        toast.error(result.error || "Failed to create product");
       }
     } catch (error) {
-      toast.error("Failed to update product");
+      toast.error("Failed to create product");
     } finally {
       setIsSubmitting(false);
     }
@@ -110,10 +94,10 @@ export default function EditProductForm({ product }: EditProductFormProps) {
         </button>
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-            Edit Product
+            Add New Product
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400 mt-1">
-            Update product details and settings
+            Create a new product for your store
           </p>
         </div>
       </div>
@@ -210,6 +194,7 @@ export default function EditProductForm({ product }: EditProductFormProps) {
                 if (res && res[0]) {
                   const updatedImages = [...imageUrls, res[0].url];
                   setImageUrls(updatedImages);
+                  setValue("images", updatedImages);
                   toast.success("Image uploaded successfully!");
                 }
               }}
@@ -268,12 +253,12 @@ export default function EditProductForm({ product }: EditProductFormProps) {
             {isSubmitting ? (
               <>
                 <LoadingSpinner size="sm" />
-                Saving...
+                Creating...
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
-                Save Changes
+                <Package className="w-4 h-4" />
+                Create Product
               </>
             )}
           </button>

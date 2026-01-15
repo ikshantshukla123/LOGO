@@ -5,6 +5,7 @@ interface User {
   id: string;
   name: string | null;
   mobile: string | null;
+  role?: "USER" | "ADMIN";
 }
 
 type AuthView = 'login' | 'cart' | 'checkout';
@@ -13,16 +14,17 @@ interface AuthStore {
   user: User | null;
   isModalOpen: boolean;
   view: AuthView; // <--- ADDED: To track why modal opened
-  
+
   login: (user: User) => void;
   logout: () => void;
   openModal: (view?: AuthView) => void; // <--- UPDATED
   closeModal: () => void;
+  isAdmin: () => boolean;
 }
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isModalOpen: false,
       view: 'login',
@@ -32,6 +34,10 @@ export const useAuthStore = create<AuthStore>()(
 
       openModal: (view = 'login') => set({ isModalOpen: true, view }),
       closeModal: () => set({ isModalOpen: false }),
+      isAdmin: () => {
+        const { user } = get();
+        return user?.role === "ADMIN";
+      },
     }),
     {
       name: 'auth-storage',

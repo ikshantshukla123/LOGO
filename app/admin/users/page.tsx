@@ -1,21 +1,17 @@
 import { Suspense } from "react";
-import ProductsClient from "./ProductsClient";
+import UsersClient from "./UsersClient";
 import LoadingSpinner from "@/components/admin/LoadingSpinner";
-import { requireAdmin } from "@/lib/admin-auth";
 
-export default async function AdminProductsPage() {
-  // Server-side admin check
-  await requireAdmin();
-
+export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
-            Products
+            Users
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400 mt-1">
-            Manage your product inventory
+            Manage customer accounts and user data
           </p>
         </div>
       </div>
@@ -25,7 +21,7 @@ export default async function AdminProductsPage() {
           <LoadingSpinner size="lg" />
         </div>
       }>
-        <ProductsClient />
+        <UsersClient />
       </Suspense>
     </div>
   );

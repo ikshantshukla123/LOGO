@@ -4,22 +4,24 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-import { useAuthStore } from "@/store/authStore"; 
-import { ShoppingBag, Search, Menu, X, ChevronDown, User } from "lucide-react";
-import { cn } from "@/lib/utils"; 
+import { useAuthStore } from "@/store/authStore";
+import { ShoppingBag, Search, Menu, X, ChevronDown, User, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
+import AdminLoginModal from "@/components/auth/AdminLoginModal";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  
+
   const { items } = useCartStore();
-  const { user, openModal, logout } = useAuthStore();
-  
+  const { user, openModal, logout, isAdmin } = useAuthStore();
+
   const cartCount = items.reduce((t, i) => t + i.quantity, 0);
 
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
 
   // Handle scroll effect for glassmorphism
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function Navbar() {
 
   // --- HANDLER: Intercept Cart Click ---
   const handleCartClick = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (!user) {
       openModal(); // Not logged in? Show Modal
     } else {
@@ -39,16 +41,16 @@ export default function Navbar() {
   };
 
   return (
-    <header 
+    <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-        isScrolled 
-          ? "bg-black/80 backdrop-blur-md border-zinc-800 h-16" 
+        isScrolled
+          ? "bg-black/80 backdrop-blur-md border-zinc-800 h-16"
           : "bg-black border-transparent h-20"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
-        
+
         {/* LEFT: LOGO & DESKTOP NAV */}
         <div className="flex items-center gap-10">
           <Link href="/" className="text-2xl font-black tracking-tighter uppercase">
@@ -57,7 +59,7 @@ export default function Navbar() {
 
           <nav className="hidden lg:flex items-center gap-8">
             <NavItem label="Home" href="/" active={pathname === "/"} />
-            
+
             {/* MEGA MENU TRIGGER */}
             <div
               onMouseEnter={() => setOpenMenu("bottom")}
@@ -97,26 +99,50 @@ export default function Navbar() {
 
           {/* AUTH BUTTONS (NEW) */}
           {user ? (
-             <div className="hidden md:flex items-center gap-4">
-                <span className="text-sm font-bold text-zinc-300">Hi, {user.name?.split(' ')[0]}</span>
-                <button 
-                  onClick={() => {
-                    logout();
-                    router.push("/");
-                  }}
-                  className="text-xs text-zinc-500 hover:text-white uppercase tracking-wider"
+            <div className="hidden md:flex items-center gap-4">
+              <span className="text-sm font-bold text-zinc-300 flex items-center gap-2">
+                {isAdmin() && <Shield className="w-4 h-4 text-blue-400" />}
+                Hi, {user.name?.split(' ')[0]}
+                {isAdmin() && (
+                  <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Admin</span>
+                )}
+              </span>
+              {isAdmin() && (
+                <Link
+                  href="/admin"
+                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full transition-colors"
                 >
-                  Logout
-                </button>
-             </div>
+                  Dashboard
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  logout();
+                  router.push("/");
+                }}
+                className="text-xs text-zinc-500 hover:text-white uppercase tracking-wider"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
-            <button 
-  onClick={() => openModal('login')} // <--- Fix: Wrap in arrow function
-  className="hidden md:flex items-center gap-2 text-sm font-bold uppercase tracking-wider hover:text-zinc-300 transition-colors"
->
-  <User className="w-5 h-5" />
-  <span>Sign In</span>
-</button>
+            <div className="hidden md:flex items-center gap-2">
+              <button
+                onClick={() => openModal('login')}
+                className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider hover:text-zinc-300 transition-colors"
+              >
+                <User className="w-5 h-5" />
+                <span>Sign In</span>
+              </button>
+              <span className="text-zinc-600">|</span>
+              <button
+                onClick={() => setShowAdminModal(true)}
+                className="flex items-center gap-1 text-xs text-zinc-400 hover:text-blue-400 transition-colors"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Admin</span>
+              </button>
+            </div>
           )}
 
           {/* CART ICON (Protected) */}
@@ -130,7 +156,7 @@ export default function Navbar() {
           </div>
 
           {/* MOBILE TOGGLE */}
-          <button 
+          <button
             className="lg:hidden p-2 text-zinc-400"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -142,21 +168,60 @@ export default function Navbar() {
       {/* MOBILE MENU PANEL */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 top-[64px] bg-black z-40 p-6 flex flex-col gap-6 animate-in slide-in-from-right">
-           <NavItem label="Home" href="/" active={pathname === "/"} />
-           <NavItem label="All Products" href="/products" active={pathname === "/products"} />
-           
-           {/* Mobile Auth Options */}
-           {user ? (
-             <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="text-left text-sm font-medium text-red-500">
-               Logout ({user.name})
-             </button>
-           ) : (
-             <button onClick={() => { openModal(); setIsMobileMenuOpen(false); }} className="text-left text-sm font-medium text-white">
-               Sign In
-             </button>
-           )}
+          <NavItem label="Home" href="/" active={pathname === "/"} />
+          <NavItem label="All Products" href="/products" active={pathname === "/products"} />
+
+          {/* Mobile Auth Options */}
+          {user ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-bold text-white">
+                {isAdmin() && <Shield className="w-4 h-4 text-blue-400" />}
+                Hi, {user.name?.split(' ')[0]}
+                {isAdmin() && (
+                  <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">Admin</span>
+                )}
+              </div>
+              {isAdmin() && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-sm text-blue-400 hover:text-blue-300"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
+              <button
+                onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                className="text-left text-sm font-medium text-red-500"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <button
+                onClick={() => { openModal(); setIsMobileMenuOpen(false); }}
+                className="text-left text-sm font-medium text-white"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setShowAdminModal(true); setIsMobileMenuOpen(false); }}
+                className="text-left text-xs text-zinc-400 flex items-center gap-1"
+              >
+                <Shield className="w-4 h-4" />
+                Admin Login
+              </button>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Admin Login Modal */}
+      <AdminLoginModal
+        isOpen={showAdminModal}
+        onClose={() => setShowAdminModal(false)}
+      />
     </header>
   );
 }

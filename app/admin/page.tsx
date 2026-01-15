@@ -1,28 +1,18 @@
-// app/admin/page.tsx
+import { Suspense } from "react";
+import { Package, ShoppingCart, Users, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import StatsCard from "@/components/admin/StatsCard";
+import LoadingSpinner from "@/components/admin/LoadingSpinner";
+import { getProductStats } from "@/actions/admin/products";
+import { getOrderStats } from "@/actions/admin/orders";
+import { getUserStats } from "@/actions/admin/users";
+import { requireAdmin } from "@/lib/admin-auth";
 
-export default async function AdminDashboard() {
-  // Fetch stats from database
-  const [
-    totalProducts,
-    totalOrders,
-    totalUsers,
-    recentProducts,
-  ] = await Promise.all([
-    prisma.product.count(),
-    prisma.order.count(),
-    prisma.user.count(),
-    prisma.product.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        price: true,
-        createdAt: true,
-      },
-    }),
+async function DashboardStats() {
+  const [productStats, orderStats, userStats] = await Promise.all([
+    getProductStats(),
+    getOrderStats(),
+    getUserStats(),
   ]);
 
   const formatPrice = (price: number) => {
@@ -30,164 +20,226 @@ export default async function AdminDashboard() {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
-    }).format(price);
+    }).format(price / 100); // Convert from cents
   };
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <StatsCard
+        title="Total Products"
+        value={productStats.success && productStats.data ? productStats.data.totalProducts : 0}
+        icon={Package}
+        color="blue"
+        href="/admin/products"
+      />
+      <StatsCard
+        title="Total Orders"
+        value={orderStats.success && orderStats.data ? orderStats.data.totalOrders : 0}
+        icon={ShoppingCart}
+        color="purple"
+        href="/admin/orders"
+      />
+      <StatsCard
+        title="Total Revenue"
+        value={orderStats.success && orderStats.data ? formatPrice(orderStats.data.totalRevenue) : "₹0"}
+        icon={DollarSign}
+        color="green"
+      />
+      <StatsCard
+        title="Total Users"
+        value={userStats.success && userStats.data ? userStats.data.totalUsers : 0}
+        icon={Users}
+        color="orange"
+        href="/admin/users"
+      />
+    </div>
+  );
+}
+
+async function RecentOrders() {
+  const orderStats = await getOrderStats();
+
+  if (!orderStats.success || !orderStats.data?.recentOrders) {
+    return (
+      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+          Recent Orders
+        </h2>
+        <p className="text-zinc-500 dark:text-zinc-400 text-center py-8">
+          No orders found
+        </p>
+      </div>
+    );
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price / 100);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case "cancelled":
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+      default:
+        return "bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300";
+    }
+  };
+
+  return (
+    <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+          Recent Orders
+        </h2>
+        <Link
+          href="/admin/orders"
+          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+        >
+          View All
+        </Link>
+      </div>
+
+      <div className="space-y-4">
+        {orderStats.data?.recentOrders?.map((order) => (
+          <div
+            key={order.id}
+            className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg"
+          >
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <div>
+                  <p className="font-medium text-zinc-900 dark:text-white">
+                    Order #{order.id.slice(-8)}
+                  </p>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    {order.user?.name || order.user?.email || "Guest"} • {order._count.orderItems} item{order._count.orderItems !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
+                {order.status}
+              </span>
+              <span className="font-semibold text-zinc-900 dark:text-white">
+                {formatPrice(order.totalAmount)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default async function AdminDashboard() {
+  // Server-side admin check
+  await requireAdmin();
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Dashboard Overview
+        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
+          Dashboard
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-zinc-600 dark:text-zinc-400 mt-1">
           Welcome back! Here's what's happening with your store.
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold">{totalProducts}</div>
-          <div className="text-sm opacity-90">Total Products</div>
-          <div className="mt-4">
-            <Link
-              href="/admin/products"
-              className="inline-flex items-center gap-2 text-sm hover:underline"
-            >
-              Manage Products
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold">{totalOrders}</div>
-          <div className="text-sm opacity-90">Total Orders</div>
-          <div className="mt-4">
-            <Link
-              href="/admin/orders"
-              className="inline-flex items-center gap-2 text-sm hover:underline"
-            >
-              View Orders
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
-          <div className="text-3xl font-bold">{totalUsers}</div>
-          <div className="text-sm opacity-90">Total Users</div>
-          <div className="mt-4">
-            <Link
-              href="/admin/users"
-              className="inline-flex items-center gap-2 text-sm hover:underline"
-            >
-              Manage Users
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Products */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Recent Products
-          </h2>
-          <Link
-            href="/admin/products"
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            View All
-          </Link>
-        </div>
-        
-        <div className="space-y-4">
-          {recentProducts.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-              No products yet. Add your first product!
-            </p>
-          ) : (
-            recentProducts.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800 last:border-0"
-              >
-                <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Added {new Date(product.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="font-semibold text-gray-900 dark:text-white">
-                  {formatPrice(product.price)}
-                </div>
+      {/* Stats Cards */}
+      <Suspense fallback={
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2 mb-2"></div>
+                <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-1/3"></div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
-      </div>
+      }>
+        <DashboardStats />
+      </Suspense>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Quick Actions
-          </h3>
-          <div className="space-y-3">
-            <Link
-              href="/admin/products/new"
-              className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add New Product
-            </Link>
-            <Link
-              href="/admin/orders"
-              className="flex items-center gap-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-              View Recent Orders
-            </Link>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Orders */}
+        <div className="lg:col-span-2">
+          <Suspense fallback={
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+              <div className="flex justify-center py-8">
+                <LoadingSpinner size="lg" />
+              </div>
+            </div>
+          }>
+            <RecentOrders />
+          </Suspense>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+              Quick Actions
+            </h3>
+            <div className="space-y-3">
+              <Link
+                href="/admin/products/new"
+                className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+              >
+                <Package className="w-5 h-5" />
+                Add New Product
+              </Link>
+              <Link
+                href="/admin/orders"
+                className="flex items-center gap-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                View All Orders
+              </Link>
+              <Link
+                href="/admin/users"
+                className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+              >
+                <Users className="w-5 h-5" />
+                Manage Users
+              </Link>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Store Status
-          </h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Products Live</span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                Active
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Order Processing</span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                Ready
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Store Visibility</span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                Public
-              </span>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+              Store Status
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-600 dark:text-zinc-400">System Status</span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                  ● Operational
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-600 dark:text-zinc-400">Order Processing</span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                  ● Active
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-600 dark:text-zinc-400">Store Visibility</span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                  ● Public
+                </span>
+              </div>
             </div>
           </div>
         </div>
