@@ -132,8 +132,8 @@ NODE_ENV="development"
 
 ### **1. Clone & Install**
 ```bash
-git clone https://github.com/your-username/threadforge.git
-cd threadforge
+git clone https://github.com/ikshantshukla123/logo.git
+cd logo
 npm install
 ```
 
