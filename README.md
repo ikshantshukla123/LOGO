@@ -65,30 +65,148 @@ A full-stack Next.js e-commerce platform built for custom t-shirt sales with com
 
 ```
 tshirt/
-├── app/                    # Next.js App Router
-│   ├── (storefront)/      # Customer-facing pages
-│   │   ├── products/      # Product catalog & details
-│   │   ├── cart/          # Shopping cart
-│   │   └── about/         # About page
-│   ├── admin/             # Admin dashboard
-│   │   ├── products/      # Product management
-│   │   ├── orders/        # Order management
-│   │   └── users/         # User management
-│   └── api/               # API routes
-│       ├── auth/          # Authentication endpoints
-│       ├── cart/          # Cart operations
-│       └── products/      # Product CRUD operations
-├── components/            # Reusable UI components
-│   ├── admin/            # Admin-specific components
-│   ├── auth/             # Authentication components
-│   ├── nav/              # Navigation components
-│   └── shared/           # Shared components
-├── actions/              # Server actions
-├── lib/                  # Utility functions
-├── store/                # Zustand state stores
-├── prisma/               # Database schema & migrations
-└── types/                # TypeScript type definitions
+├── app/                          # Next.js App Router
+│   ├── (storefront)/            # Customer-facing pages
+│   │   ├── page.tsx             # Homepage (ISR - 1h revalidate)
+│   │   ├── layout.tsx           # Storefront layout with Navbar/Footer
+│   │   ├── products/            
+│   │   │   ├── page.tsx         # Product listing (ISR - 5m revalidate)
+│   │   │   ├── ProductsContent.tsx
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx     # Product details (ISR - 5m revalidate)
+│   │   │       └── ProductDetailsClient.tsx
+│   │   ├── cart/                
+│   │   │   └── page.tsx         # Shopping cart (CSR)
+│   │   ├── about/               # About page
+│   │   └── custom/              # Custom design page
+│   ├── admin/                   # Admin dashboard (SSR)
+│   │   ├── layout.tsx
+│   │   ├── page.tsx             # Dashboard analytics
+│   │   ├── products/            # Product management
+│   │   │   ├── page.tsx
+│   │   │   ├── ProductsClient.tsx
+│   │   │   ├── DeleteProductButton.tsx
+│   │   │   ├── new/             # Create product
+│   │   │   └── [id]/            # Edit product
+│   │   ├── orders/              # Order management
+│   │   │   ├── page.tsx
+│   │   │   └── OrdersClient.tsx
+│   │   └── users/               # User management
+│   │       ├── page.tsx
+│   │       └── UsersClient.tsx
+│   └── api/                     # API routes
+│       ├── auth/                # Authentication endpoints
+│       │   ├── admin-login/
+│       │   ├── check-user/
+│       │   ├── register/
+│       │   └── save/
+│       ├── cart/                # Cart operations
+│       │   ├── route.ts
+│       │   ├── [id]/
+│       │   └── clear/
+│       ├── products/            # Product CRUD
+│       │   └── route.ts
+│       ├── uploadthing/         # File upload
+│       └── user/
+│
+├── components/                  # Reusable UI components
+│   ├── home/                    # ✨ Homepage-specific components
+│   │   ├── HeroSection.tsx
+│   │   ├── CategoryGrid.tsx
+│   │   ├── FeaturedProducts.tsx
+│   │   └── PromoSection.tsx
+│   ├── product/                 # ✨ Product-related components
+│   │   ├── ProductCard.tsx
+│   │   ├── ProductGrid.tsx
+│   │   ├── ProductImageGallery.tsx
+│   │   ├── ProductInfo.tsx
+│   │   ├── SizeSelector.tsx
+│   │   └── ProductActions.tsx
+│   ├── cart/                    # ✨ Cart-specific components
+│   │   ├── CartList.tsx
+│   │   ├── CartItem.tsx
+│   │   ├── CartSummary.tsx
+│   │   ├── EmptyCart.tsx
+│   │   └── AddToCartButton.tsx
+│   ├── shared/                  # ✨ Shared/reusable components
+│   │   ├── Navbar.tsx
+│   │   ├── Footer.tsx
+│   │   ├── PageHeader.tsx
+│   │   └── Button.tsx
+│   ├── admin/                   # Admin-specific components
+│   │   ├── AdminGuard.tsx
+│   │   ├── DataTable.tsx
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── StatsCard.tsx
+│   │   └── LoadingSpinner.tsx
+│   ├── auth/                    # Authentication components
+│   │   ├── AuthModal.tsx
+│   │   ├── AdminLoginModal.tsx
+│   │   └── GlobalAuthModal.tsx
+│   ├── modals/
+│   │   └── UserInfoModal.tsx
+│   └── ui/                      # UI primitives
+│       ├── LoadingSpinner.tsx
+│       └── LoadingProducts.tsx
+│
+├── lib/                         # Utility functions & services
+│   ├── api/                     # ✨ Centralized data fetching
+│   │   ├── products.ts          # Product API functions
+│   │   └── cart.ts              # Cart API functions
+│   ├── db.ts                    # Prisma client
+│   ├── auth.ts                  # Auth utilities
+│   ├── admin-auth.ts            # Admin auth
+│   ├── jwt.ts                   # JWT utilities
+│   ├── uploadthing.ts           # File upload config
+│   └── utils.ts                 # Helper functions
+│
+├── actions/                     # Server actions
+│   ├── products.ts              # Product server actions
+│   └── admin/
+│       ├── products.ts
+│       ├── orders.ts
+│       └── users.ts
+│
+├── store/                       # Zustand state management
+│   ├── authStore.ts             # Authentication state
+│   └── cartStore.ts             # Shopping cart state
+│
+├── prisma/                      # Database
+│   ├── schema.prisma            # Database schema
+│   ├── migrations/              # Migration history
+│   └── generated/               # Generated Prisma client
+│
+├── types/                       # TypeScript definitions
+│   └── product.ts
+│
+└── public/                      # Static assets
+    ├── images/
+    └── readme/
 ```
+
+### 🏗️ Architecture Highlights
+
+**✨ Feature-Based Organization**
+- Components organized by feature (`home/`, `product/`, `cart/`)
+- Shared components in `shared/` folder
+- Clean separation of concerns
+
+**⚡ Rendering Strategies**
+- **ISR (Incremental Static Regeneration):** Homepage (1h), Products (5m)
+- **CSR (Client-Side Rendering):** Cart, interactive components
+- **SSR (Server-Side Rendering):** Admin dashboard
+
+**🎯 Data Layer**
+- Centralized API functions in `lib/api/`
+- Type-safe data fetching with proper error handling
+- Consistent data transformation (Prisma Decimal → number)
+
+**🔄 State Management**
+- **Zustand:** Client-side state (auth, cart)
+- **Server Actions:** Mutations and server-side operations
+- Minimal global state, prefer server state where possible
+
 
 ---
 
